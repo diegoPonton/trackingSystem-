@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 from time import sleep
+from PIL import Image
 
 #for import files, change when the project is finilized to contruct modules
 import sys
@@ -16,7 +17,25 @@ num_camera = get_num_camera()
 
 cap = cv.VideoCapture(num_camera) #change if it is neccesary 
 
+def zoom_at(img, x, y, zoom):
+    h, w = img.shape[:2]
 
+    zoom2 = zoom * 2
+
+    x1 = int(x - w / zoom2)
+    x2 = int(x + w / zoom2)
+    y1 = int(y - h / zoom2)
+    y2 = int(y + h / zoom2)
+
+
+    x1 = max(0, x1)
+    y1 = max(0, y1)
+    x2 = min(w, x2)
+    y2 = min(h, y2)
+
+    cropped = img[y1:y2, x1:x2]
+
+    return cv.resize(cropped, (w, h), interpolation=cv.INTER_LANCZOS4)
     
 
 
@@ -45,7 +64,7 @@ def take_pics(num_pics = 30):
 
 
 def detect_corners(pics):
-    cornerSize = (6,8) # TAMAÑO DEL TABLERO DE AJEDREZ DE CALIBRCION
+    cornerSize = (5,7) # TAMAÑO DEL TABLERO DE AJEDREZ DE CALIBRCION
 
     criteria = (
     cv.TERM_CRITERIA_EPS +
@@ -94,6 +113,11 @@ def detect_corners(pics):
             #DIBUJAR EN LA IMAGEN LAS ESQUINAS DETECTADAS
 
             img = cv.drawChessboardCorners(img, cornerSize, corners2, ret)
+
+            img = zoom_at(img, 264.5, 275, 2.5)
+
+            
+
             cv.imshow("img", img)
             cv.waitKey(500)
         else:
