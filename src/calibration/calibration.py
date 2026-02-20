@@ -2,12 +2,26 @@ import cv2 as cv
 import numpy as np
 from time import sleep
 
-destination = "./../../tmp/figs/calibration/"
+#for import files, change when the project is finilized to contruct modules
+import sys
+import os
+sys.path.append(os.path.dirname((os.path.dirname(os.path.abspath(__file__)))))
 
-cap = cv.VideoCapture(0) #change if it is neccesary 
+
+from tools.read_config_file import making_routes, get_route_figcal, get_num_camera
+
+making_routes()
+destination = get_route_figcal()
+num_camera = get_num_camera()
+
+cap = cv.VideoCapture(num_camera) #change if it is neccesary 
+
+
+    
+
 
 def take_pics(num_pics = 30):
-
+    print(destination)
     cont_pic = 0
 
     print("##### Tomando fotos para la calibracion")
