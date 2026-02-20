@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 from time import sleep
-import file
 
 destination = "./../../tmp/figs/calibration/"
 
@@ -15,7 +14,10 @@ def take_pics(num_pics = 30):
     pics = []
     while cont_pic < num_pics:
         ret, frame = cap.read()  
-        if ret: pics.append(frame) else break
+        if ret: 
+            pics.append(frame) 
+        else: 
+            break
 
         cont_pic += 1
 
