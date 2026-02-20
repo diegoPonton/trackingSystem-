@@ -1,15 +1,3 @@
-
 {
-    "config_calibration":{
-        "num_camera": 0
-    },
-
-    "config_system":{
-
-    },
-
-    "routes":{
-        "temp_route": "tmp",
-        "temp_fcalib_route": "tmp\\figs\\calibration"
-    }
+    
 }
