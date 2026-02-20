@@ -38,7 +38,7 @@ def take_pics(num_pics = 30):
         cv.imwrite(destination + "/figure" + str(cont_pic) + ".jpg", frame)
         print(f"# foto numero {cont_pic} tomada")
 
-        sleep(1)
+        sleep(0.5)
         if cont_pic == 30: break
     
     return pics 
