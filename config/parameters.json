@@ -10,6 +10,6 @@
 
     "routes":{
         "temp_route": "tmp",
-        "temp_fcalib_route": "tmp\\figs\\calibration"
+        "temp_fcalib_route": "tmp/figs/calibration"
     }
 }

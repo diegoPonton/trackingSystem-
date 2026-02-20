@@ -38,14 +38,14 @@ def take_pics(num_pics = 30):
         cv.imwrite(destination + "/figure" + str(cont_pic) + ".jpg", frame)
         print(f"# foto numero {cont_pic} tomada")
 
-        sleep(0.5)
+        sleep(0.2)
         if cont_pic == 30: break
     
     return pics 
 
 
 def detect_corners(pics):
-    cornerSize = (8,5) # TAMAÑO DEL TABLERO DE AJEDREZ DE CALIBRCION
+    cornerSize = (6,8) # TAMAÑO DEL TABLERO DE AJEDREZ DE CALIBRCION
 
     criteria = (
     cv.TERM_CRITERIA_EPS +
@@ -77,7 +77,6 @@ def detect_corners(pics):
     for img in pics:
         # APLICAR ESCALA DE GRISES
         imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
         ret, corners = cv.findChessboardCorners(imgGray, cornerSize, None)
 
         if ret:
