@@ -7,7 +7,7 @@ cap = cv.VideoCapture(0) #change if it is neccesary
 
 def take_pics():
     ret, frame = cap.read()
-    return frame if ret else -1
+    return frame 
 
 
 
@@ -15,8 +15,8 @@ def main():
     result = take_pics()
 
     while True:
-        if result != -1:
-            cv.imshow("camera", result)
+        
+        cv.imshow("camera", result)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
