@@ -1,25 +1,23 @@
-import cv2
-import numpy as np
+import cv2 as cv
+import matplotlib.pyplot as plt
+
+## SELECCIONAR DICCIONARIO DE MARCADORES 
+
+dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_250)
 
 
-## DICCIONARIO DE MARCADORES 
+## SETEAR PARAMETROS DE DETECCION
 
-dict = cv2.aruco.Dictionary(cv2.aruco.DICT_6X6_100)
+markerId = 0
+markerSize = 200 ## TAMAÑO DEL MARCADOR EN PIXELES
 
-
-## ID MARCADOR
-
-marker_id = 42
-marker_size = 200
-
-marker_image = cv2.aruco.generateImageMarker(dict, marker_id, marker_size)
-
-
-
+marker = cv.aruco.generateImageMarker(dict, markerId, markerSize)
 
 
 ## MOSTRAR MARCADOR 
-cv2.imwrite("marker_42.png", marker_image)
-cv2.imshow("ArUco Marker", marker_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+plt.imshow(marker, cmap="gray")
+plt.show()
+
+
+
