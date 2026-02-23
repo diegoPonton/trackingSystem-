@@ -1,7 +1,7 @@
 
 {
     "config_calibration":{
-        "num_camera": 1
+        "num_camera": 0
     },
 
     "config_system":{
