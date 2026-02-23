@@ -1,3 +1,7 @@
 /tmp/
 
 /tmp/figs/calibration/
+
+
+__pycache__/
+*.pyc
