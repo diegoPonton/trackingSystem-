@@ -30,5 +30,10 @@ def get_route_figcal():
 def get_num_camera():
     return  data['config_calibration']['num_camera']
 
+<<<<<<< HEAD
 def get_route_undistorted():
     return os.path.join(base_route, data['routes']['temp_undistorted_route'])
+=======
+def get_route_aruco():
+    return os.path.join(base_route, data['routes']['data_static_aruco']) 
+>>>>>>> 767135c1188cc0700d26ae4fa772ff091f0d5aea
