@@ -11,10 +11,7 @@
     "routes":{
         "temp_route": "tmp",
         "temp_fcalib_route": "tmp/figs/calibration",
-<<<<<<< HEAD
-        "temp_undistorted_route": "tmp/figs/undistortion"
-=======
+        "temp_undistorted_route": "tmp/figs/undistortion",
         "data_static_aruco": "data/aRuco"
->>>>>>> 767135c1188cc0700d26ae4fa772ff091f0d5aea
     }
 }
