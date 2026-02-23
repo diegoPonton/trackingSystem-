@@ -1,4 +1,5 @@
-﻿import os 
+
+import os 
 import json
 
 
@@ -31,6 +32,3 @@ def get_num_camera():
 
 def get_route_undistorted():
     return os.path.join(base_route, data['routes']['temp_undistorted_route'])
-
-def get_route_aruco():
-    return os.path.join(base_route, data['routes']['data_static_aruco'])
