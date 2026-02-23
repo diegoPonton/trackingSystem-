@@ -1,150 +1,108 @@
 import cv2 as cv
 import numpy as np
 from time import sleep
-from PIL import Image
+import sys, os
 
-#for import files, change when the project is finilized to contruct modules
-import sys
-import os
 sys.path.append(os.path.dirname((os.path.dirname(os.path.abspath(__file__)))))
 
-
-from tools.read_config_file import making_routes, get_route_figcal, get_num_camera
+from tools.read_config_file import making_routes, get_route_figcal, get_num_camera, get_route_undistorted
 
 making_routes()
 destination = get_route_figcal()
+undistorted_destination = get_route_undistorted()
 num_camera = get_num_camera()
 
-cap = cv.VideoCapture(num_camera) #change if it is neccesary 
+cap = cv.VideoCapture(num_camera)
 
-def zoom_at(img, x, y, zoom):
-    h, w = img.shape[:2]
-
-    zoom2 = zoom * 2
-
-    x1 = int(x - w / zoom2)
-    x2 = int(x + w / zoom2)
-    y1 = int(y - h / zoom2)
-    y2 = int(y + h / zoom2)
-
-
-    x1 = max(0, x1)
-    y1 = max(0, y1)
-    x2 = min(w, x2)
-    y2 = min(h, y2)
-
-    cropped = img[y1:y2, x1:x2]
-
-    return cv.resize(cropped, (w, h), interpolation=cv.INTER_LANCZOS4)
-    
-
-
-def take_pics(num_pics = 30):
-    print(destination)
+def take_pics(num_pics=30):
     cont_pic = 0
-
-    print("##### Tomando fotos para la calibracion")
     pics = []
     while cont_pic < num_pics:
-        ret, frame = cap.read()  
-        if ret: 
-            pics.append(frame) 
-        else: 
+        ret, frame = cap.read()
+        if not ret:
             break
-
         cont_pic += 1
-
-        cv.imwrite(destination + "/figure" + str(cont_pic) + ".jpg", frame)
-        print(f"# foto numero {cont_pic} tomada")
-
+        pics.append(frame)
+        cv.imwrite(destination + f"/figure{cont_pic}.jpg", frame)
         sleep(0.05)
-        if cont_pic == 30: break
-    
-    return pics 
-
+    return pics
 
 def detect_corners(pics):
-    cornerSize = (5,7) # TAMAÑO DEL TABLERO DE AJEDREZ DE CALIBRCION
+    cornerSize = (5, 7)  # (cols, rows) = esquinas internas
 
-    criteria = (
-    cv.TERM_CRITERIA_EPS +
-    cv.TERM_CRITERIA_MAX_ITER,
-    30,
-    0.001
-)
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
+    objectPoints = np.zeros((cornerSize[0] * cornerSize[1], 3), np.float32)
+    objectPoints[:, :2] = np.mgrid[0:cornerSize[0], 0:cornerSize[1]].T.reshape(-1, 2)
 
-
-    ## CREAMOS UNA MATRIZ DE PUNTOS QUE VAN A REPRESENTAR LOS PUNTODS DEL TABLERO DE AJEDREZ
-
-    objectPoints = np.zeros((cornerSize[0]*cornerSize[1], 3), np.float32)
-
-    objectPoints[:, :2] = np.mgrid[
-    0:cornerSize[0],
-    0:cornerSize[1]
-    ].T.reshape(-1, 2)
-
-
-
-    ## ARREGLOS PARA GUARDAR LOS PUNTOS DE LA IMAGEN Y LOS PUNTOS DEL MUNDO REAL 
-
-    objectPointsArray = []
-    imagePointsArray = []
-
-    ## BUSCAR LAS ESQUINAS EN CADA UNA DE LAS IMAGENES  
+    objpoints = []
+    imgpoints = []
+    img_size = None
     cont = 0
+
     for img in pics:
-        # APLICAR ESCALA DE GRISES
         imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        ret, corners = cv.findChessboardCorners(imgGray, cornerSize, None)
-        #shapegray = gray.shape[::-1]
-        if ret:
-            objectPointsArray.append(objectPoints)
+        if img_size is None:
+            img_size = (imgGray.shape[1], imgGray.shape[0])  # (w,h)
+
+        found, corners = cv.findChessboardCornersSB(imgGray, cornerSize)  # más robusto que el normal
+
+        if found:
+            objpoints.append(objectPoints)
 
             corners2 = cv.cornerSubPix(
-            imgGray,
-            corners =corners,
-            winSize = (2, 2),
-            zeroZone = (-1, -1),
-            criteria = criteria
+                imgGray, corners, winSize=(11, 11), zeroZone=(-1, -1), criteria=criteria
             )
-            imagePointsArray.append(corners2)
+            imgpoints.append(corners2)
 
-            #DIBUJAR EN LA IMAGEN LAS ESQUINAS DETECTADAS
-            for corner in corners2:
-                x, y = int(corner[0][0]), int(corner[0][1])
-                cv.drawMarker(img, (x, y), (0,255,0),
-                            markerType=cv.MARKER_CROSS,
-                            markerSize=3,
-                            thickness=1)
-            #img = cv.drawChessboardCorners(img, cornerSize, corners2, ret)
+            vis = img.copy()
+            for c in corners2:
+                x, y = int(c[0][0]), int(c[0][1])
+                cv.drawMarker(vis, (x, y), (0, 255, 0), cv.MARKER_CROSS, 6, 1)
 
-            #img = zoom_at(img, 264.5, 275, 2.5)
-
-            
-            cv.imwrite(destination + "/figure_pro" + str(cont) + ".jpg", img)
+            cv.imwrite(destination + f"/figure_pro{cont}.jpg", vis)
             cont += 1
-            cv.imshow("img", img)
-            cv.waitKey(500)
         else:
-            print("No se encontraron esquinas en la imagen")
+            print("No se encontraron esquinas en una imagen")
 
+    if len(objpoints) == 0:
+        raise RuntimeError("No se detectó el tablero en ninguna imagen válida.")
 
-    ## calibration
-   
+    if len(objpoints) < 8:
+        raise RuntimeError(f"Muy pocas imágenes válidas ({len(objpoints)}). Toma más fotos.")
 
+    return objpoints, imgpoints, img_size
 
+def calibrateCamera(objpoints, imgpoints, img_size):
+    flags = cv.CALIB_RATIONAL_MODEL  # recomendado para wide
+    rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, img_size, None, None, flags=flags)
+    print("RMS:", rms)
+    print("K:\n", mtx)
+    print("dist:", dist.ravel())
+    return mtx, dist
 
-        
+def undistortImage(img_path, out_name, mtx, dist):
+    img = cv.imread(img_path)
+    h, w = img.shape[:2]
+    newK, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1.0, (w, h))
+    dst = cv.undistort(img, mtx, dist, None, newK)
+
+    # opcional: recortar
+    x, y, rw, rh = roi
+    dst_crop = dst[y:y+rh, x:x+rw] if rw > 0 and rh > 0 else dst
+
+    cv.imwrite(undistorted_destination + f"/{out_name}.jpg", dst_crop)
 
 def main():
-    result = take_pics()
-    detect_corners(result)
+    pics = take_pics(30)
+    objpoints, imgpoints, img_size = detect_corners(pics)
+    mtx, dist = calibrateCamera(objpoints, imgpoints, img_size)
 
-
+    # Undistort usando las fotos originales (mejor)
+    for i in range(1, len(pics) + 1):
+        undistortImage(destination + f"/figure{i}.jpg", f"figure_undistorted{i}", mtx, dist)
 
 if __name__ == "__main__":
     main()
     cap.release()
     cv.destroyAllWindows()
-

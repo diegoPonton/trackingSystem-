@@ -29,3 +29,6 @@ def get_route_figcal():
 
 def get_num_camera():
     return  data['config_calibration']['num_camera']
+
+def get_route_undistorted():
+    return os.path.join(base_route, data['routes']['temp_undistorted_route'])
