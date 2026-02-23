@@ -15,7 +15,8 @@ cap = cv.VideoCapture(num_camera) #change if it is neccesary
 
 
 #choose dictionary
-dictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_250)
+dictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
+
 
 # function for detector parameters
 detectorParams = aruco.DetectorParameters()
@@ -33,9 +34,9 @@ while True:
     markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(frame)
     print(markerIds)
     output_frame = frame.copy()
-    aruco.drawDetectedMarkers(output_frame, markerCorners, markerIds)
+    aruco.drawDetectedMarkers(frame, markerCorners, markerIds)
 
-    cv.imshow("Detected ArUco", output_frame)
+    cv.imshow("Detected ArUco", frame)
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
     
