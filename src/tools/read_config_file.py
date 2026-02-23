@@ -32,5 +32,8 @@ def get_num_camera():
 
 def get_route_undistorted():
     return os.path.join(base_route, data['routes']['temp_undistorted_route'])
+<<<<<<< HEAD
 def get_route_aruco():
     return os.path.join(base_route, data['routes']['data_static_aruco']) 
+=======
+>>>>>>> 5edeff3970c0a2d43a0886844323e89cae4e1d55
