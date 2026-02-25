@@ -8,6 +8,8 @@ from writingDetectionOnCSV import append_positions_to_csv
 sys.path.append(os.path.dirname((os.path.dirname(os.path.abspath(__file__)))))
 from tools.read_config_file import get_num_camera, get_route_center_positions
 
+
+
 num_camera = get_num_camera()
 routeCSV = get_route_center_positions()
 
