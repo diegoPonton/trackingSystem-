@@ -5,13 +5,14 @@
     },
 
     "config_system":{
-
+        "robot_number": 20
     },
 
 "routes":{
     "temp_route": "tmp",
     "temp_fcalib_route": "tmp/figs/calibration",
     "temp_undistorted_route": "tmp/figs/undistortion",
-    "data_static_aruco": "data/aRuco"
+    "data_static_aruco": "data/aRuco",
+    "data_static_center_positions": "data/center_positions"
 }
 }
